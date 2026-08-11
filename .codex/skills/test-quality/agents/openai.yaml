@@ -1,0 +1,4 @@
+interface:
+  display_name: "Test Quality"
+  short_description: "Design tests that find real bugs"
+  default_prompt: "Use test-quality to design or review tests from the behavioral contract."

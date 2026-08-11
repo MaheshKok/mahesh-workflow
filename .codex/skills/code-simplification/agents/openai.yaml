@@ -1,0 +1,4 @@
+interface:
+  display_name: "Code Simplification"
+  short_description: "Find behavior-preserving simplifications"
+  default_prompt: "Use $code-simplification to assess this code for behavior-preserving simplifications."

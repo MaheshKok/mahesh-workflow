@@ -1,0 +1,4 @@
+interface:
+  display_name: "Code Review and Quality"
+  short_description: "Review changes with structured findings"
+  default_prompt: "Use $code-review-and-quality to review this diff and return severity-labeled findings."

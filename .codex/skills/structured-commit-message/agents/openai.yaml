@@ -1,0 +1,4 @@
+interface:
+  display_name: "Structured Commit Message"
+  short_description: "Write structured commit messages"
+  default_prompt: "Write a structured commit message for the staged changes."

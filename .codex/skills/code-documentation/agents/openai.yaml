@@ -1,0 +1,4 @@
+interface:
+  display_name: "Code Documentation"
+  short_description: "Draft accurate documentation from code"
+  default_prompt: "Use $code-documentation to draft accurate documentation for this code surface."

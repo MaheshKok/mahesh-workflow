@@ -1,0 +1,4 @@
+interface:
+  display_name: "PR Description Writer"
+  short_description: "Draft evidence-based PR descriptions."
+  default_prompt: "Use $pr-description-writer to draft a GitHub PR description from my diff, commits, and test output."
