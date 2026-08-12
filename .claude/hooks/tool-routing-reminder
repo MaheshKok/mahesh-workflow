@@ -1,0 +1,19 @@
+#!/bin/bash
+# UserPromptSubmit hook: inject the tool-routing decision table every turn so the
+# symbol-layer-first rule carries the SAME recency as lean-ctx's loud MCP
+# instructions ("ALWAYS use lean-ctx / NEVER native"). Without an equally-fresh
+# reminder the agent defaults code discovery to lean-ctx ctx_search/ctx_compose.
+# Fires on every prompt; kept short to bound per-turn token cost.
+cat << 'REMINDER'
+TOOL ROUTING (by intent — do NOT default all code discovery to lean-ctx):
+- Find func/symbol by NAME             -> serena find_symbol
+- Find func/symbol by BEHAVIOR         -> codebase-memory search_code / search_graph
+- Signature or body of a symbol        -> serena find_symbol(include_body) / cbm get_code_snippet
+- Who calls it / call chain            -> serena find_referencing_symbols / cbm trace_path
+- Outline of a file                    -> serena get_symbols_overview
+- Read whole file / range / pre-edit   -> lean-ctx ctx_read
+- Grep text+config, shell, list dir    -> lean-ctx ctx_search / ctx_shell / ctx_tree
+Symbol layer (codebase-memory/serena) comes BEFORE lean-ctx for code discovery.
+lean-ctx is primary for file reads, shell, and text/config grep — NOT for locating code.
+PONYTAIL ACTIVE (default ultra): YAGNI ladder — stdlib/native/one-line first, smallest working diff. "/ponytail lite|full|ultra|off" changes level; "stop ponytail" disables.
+REMINDER

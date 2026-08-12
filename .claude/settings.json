@@ -1,0 +1,332 @@
+{
+  "outputStyle": "caveman-full-mode",
+  "env": {
+    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "95",
+    "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "272000",
+    "PONYTAIL_DEFAULT_MODE": "ultra"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(curl:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm install:*)",
+      "Bash(npm test:*)",
+      "Bash(python3:*)",
+      "Bash(claude quota:*)",
+      "Bash(~/.local/bin/claude:*)",
+      "Bash(ANTHROPIC_LOG=debug ~/.local/bin/claude:*)",
+      "Bash(claude --version)",
+      "Bash(timeout 10 claude:*)",
+      "Bash(timeout 15 claude:*)",
+      "Bash(claude:*)",
+      "Bash(ANTHROPIC_LOG=debug claude:*)",
+      "Bash(bun run build:*)",
+      "Bash(bun run:*)",
+      "Bash(code --install-extension:*)",
+      "Bash(code:*)",
+      "Bash(xargs:*)",
+      "mcp__lean-ctx__ctx_read",
+      "mcp__lean-ctx__ctx_search",
+      "mcp__lean-ctx__ctx_tree",
+      "mcp__lean-ctx__ctx_overview",
+      "mcp__lean-ctx__ctx_plan",
+      "mcp__lean-ctx__ctx_metrics",
+      "mcp__lean-ctx__ctx_compress",
+      "mcp__lean-ctx__ctx_session",
+      "mcp__lean-ctx__ctx_knowledge",
+      "mcp__lean-ctx__ctx_graph",
+      "mcp__lean-ctx__ctx_retrieve",
+      "mcp__lean-ctx__ctx_provider",
+      "Bash(lean-ctx *)",
+      "Bash(/opt/homebrew/bin/lean-ctx *)",
+      "mcp__lean-ctx__ctx_semantic_search",
+      "mcp__lean-ctx__ctx_shell",
+      "mcp__lean-ctx__shell",
+      "mcp__lean-ctx__ctx_edit",
+      "mcp__lean-ctx__ctx_call",
+      "mcp__lean-ctx__ctx_expand",
+      "Bash(rtk:*)",
+      "Bash(rtk *)"
+    ],
+    "deny": [
+      "Bash(cat:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Grep",
+      "Glob"
+    ],
+    "defaultMode": "bypassPermissions"
+  },
+  "model": "opus[1m]",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import sys,json,subprocess as sp;d=json.load(sys.stdin);f=d.get('tool_input',{}).get('file_path','');r=f.endswith('.py');sp.run(['ruff','check','--fix','--quiet','--config',\\\"lint.extend-select=['T20']\\\",f],timeout=10) if r else None;sp.run(['ruff','format','--quiet',f],timeout=10) if r else None;sys.stderr.write('[Hook] ruff: formatted '+f.rsplit('/',1)[-1]+'\\n') if r else None\""
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import sys,json;d=json.load(sys.stdin);f=d.get('tool_input',{}).get('file_path','');ext=f.rsplit('.',1)[-1] if '.' in f else '';sys.stderr.write('[Skill Reminder] Use python-expert skill (progressive disclosure). Run python-reviewer agent.\\n') if ext=='py' else sys.stderr.write('[Skill Reminder] Use typescript-react-expert skill (progressive disclosure). Run code-reviewer agent.\\n') if ext in ('ts','tsx') else sys.stderr.write('[Skill Reminder] Use go-expert skill (progressive disclosure). Run go-reviewer agent.\\n') if ext=='go' else None\""
+          }
+        ]
+      },
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/lean-ctx hook observe"
+          }
+        ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/lean-ctx hook read-dedup"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/maheshkokare/.claude/hooks/precompact_preserve_context.py"
+          }
+        ]
+      },
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/lean-ctx hook observe"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import sys,json,os,re;d=json.load(sys.stdin);cmd=d.get('tool_input',{}).get('command','');tmux=os.environ.get('TMUX','');pat=r'(pytest|uvicorn|gunicorn|celery|manage\\.py runserver|flask run)';match=re.search(pat,cmd);sys.stderr.write('[Hook] Consider tmux for session persistence\\n') if match and not tmux else None\""
+          }
+        ]
+      },
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/lean-ctx hook observe"
+          }
+        ]
+      },
+      {
+        "matcher": "Grep|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/cbm-code-discovery-gate",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/lean-ctx hook rewrite"
+          }
+        ]
+      },
+      {
+        "matcher": "Read|read|ReadFile|read_file|View|view|Grep|grep|Search|search|ListFiles|list_files|ListDirectory|list_directory|Glob|glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/lean-ctx hook redirect"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/lean-ctx hook observe"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/cbm-session-reminder"
+          }
+        ]
+      },
+      {
+        "matcher": "resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/cbm-session-reminder"
+          }
+        ]
+      },
+      {
+        "matcher": "clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/cbm-session-reminder"
+          }
+        ]
+      },
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/cbm-session-reminder"
+          }
+        ]
+      },
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/lean-ctx hook observe"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/lean-ctx hook observe"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/lean-ctx hook observe"
+          },
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/tool-routing-reminder"
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "python3 ~/.claude/statusline.py",
+    "padding": 1
+  },
+  "enabledPlugins": {
+    "caveman@caveman": true,
+    "claude-mem@thedotmack": true,
+    "code-review@claude-plugins-official": false,
+    "code-simplifier@claude-plugins-official": true,
+    "coderabbit@claude-plugins-official": true,
+    "codex@openai-codex": true,
+    "commit-commands@claude-plugins-official": true,
+    "context7@claude-plugins-official": false,
+    "everything-claude-code@everything-claude-code": false,
+    "ponytail@ponytail": true,
+    "pr-review-toolkit@claude-plugins-official": false,
+    "pyright-lsp@claude-plugins-official": false,
+    "security-guidance@claude-plugins-official": true,
+    "serena@claude-plugins-official": true,
+    "superpowers@superpowers-marketplace": false,
+    "warp@claude-code-warp": true,
+    "playwright@claude-plugins-official": true,
+    "greptile@claude-plugins-official": false
+  },
+  "extraKnownMarketplaces": {
+    "caveman": {
+      "source": {
+        "source": "github",
+        "repo": "JuliusBrussee/caveman"
+      }
+    },
+    "claude-code-warp": {
+      "source": {
+        "source": "github",
+        "repo": "warpdotdev/claude-code-warp"
+      }
+    },
+    "everything-claude-code": {
+      "source": {
+        "source": "github",
+        "repo": "affaan-m/everything-claude-code"
+      }
+    },
+    "headroom-marketplace": {
+      "source": {
+        "source": "github",
+        "repo": "chopratejas/headroom"
+      }
+    },
+    "openai-codex": {
+      "source": {
+        "source": "github",
+        "repo": "openai/codex-plugin-cc"
+      }
+    },
+    "thedotmack": {
+      "source": {
+        "source": "github",
+        "repo": "thedotmack/claude-mem"
+      }
+    }
+  },
+  "alwaysThinkingEnabled": true,
+  "effortLevel": "high",
+  "tui": "fullscreen",
+  "voice": {
+    "enabled": true,
+    "mode": "hold"
+  },
+  "autoDreamEnabled": true,
+  "skipDangerousModePermissionPrompt": true,
+  "skipWorkflowUsageWarning": true,
+  "preferredNotifChannel": "iterm2",
+  "voiceEnabled": true,
+  "agentPushNotifEnabled": true,
+  "inputNeededNotifEnabled": true
+}
